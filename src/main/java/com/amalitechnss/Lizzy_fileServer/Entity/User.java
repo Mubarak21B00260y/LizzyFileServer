@@ -1,4 +1,4 @@
-package com.amalitechnss.Lizzy_fileServer.Model;
+package com.amalitechnss.Lizzy_fileServer.Entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -6,8 +6,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Set;
+
 @Entity
 public class User {
 
@@ -18,5 +17,5 @@ public class User {
     private String Username;
     private LocalDateTime CreatedAt;
     private  String Role;
-    private Set< Document>  Documents;
+   // private Set< Document>  Documents;
 }
