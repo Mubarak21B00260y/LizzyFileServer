@@ -10,38 +10,44 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.List;
 
-public class DocumentServiceImpl {
-
+public class DocumentServiceImpl implements  DocumentService{
 
     private String dir;
+    private List foo;
+
+    DocumentRepository documentRepository;
 
     public DocumentServiceImpl(DocumentRepository repository) {
         this.documentRepository = repository;
+
     }
-
-    DocumentRepository documentRepository;
-    public String DocumentStoringLocation(@Value("${file.storage}")String StorageDirectory) {
-
-       dir =System.getProperty("user.dir") + "/" + StorageDirectory;
-
+    // I try to Inject the  storage directory  dependency through  this constructor
+    public DocumentServiceImpl(@Value("${file.storage}")String StorageDirectory) {
+        dir =System.getProperty("user.dir") + "/" + StorageDirectory;
         try {
             Files.createDirectories(Path.of(dir));
         }
+        catch (IOException e){
+            throw  new RuntimeException( e.getMessage());
+        }
 
-catch (IOException e){
-throw  new RuntimeException(" Error creating directory");
-
-}
-        return null;
     }
-    Document SaveDocument(MultipartFile file) throws IOException {
 
+    public void SaveDocument(MultipartFile file) throws IOException {
+        Path FilePath= Paths.get(dir+ "//"+" Filename");
+ try {
 
-         Path FilePath= Paths.get(dir+ "//"+" Filename");
-        Files.copy(file.getInputStream(),FilePath, StandardCopyOption.REPLACE_EXISTING);
+     Files.copy(file.getInputStream(),FilePath, StandardCopyOption.REPLACE_EXISTING);
 
+ }  catch (IOException e){
 
-        return  null;
+     throw  new IOException(e.getMessage());
+ }
+ // mock   of the document saving, to be fully implemented later
+        Document document= new Document(FilePath.toString(),"","", "",foo);
+        documentRepository.save(document);
+
     }
 }

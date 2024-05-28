@@ -1,11 +1,16 @@
 package com.amalitechnss.Lizzy_fileServer.Service;
 
 
-import com.amalitechnss.Lizzy_fileServer.Model.Document;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+
 @Service
+
+
 public interface DocumentService {
-    Document SaveDocument(MultipartFile file);
+    void SaveDocument(MultipartFile file) throws IOException;
+
+
 }
