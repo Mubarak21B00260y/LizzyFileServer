@@ -18,10 +18,12 @@ public interface DocumentService {
     //void SaveDocument(MultipartFile file) throws IOException;
 
 
-    void UploadDocument(MultipartFile file, DocumentDTO documentDTO) throws IOException;
+    String UploadDocument(MultipartFile file, DocumentDTO documentDTO) throws IOException;
 
     UrlResource DownloadDocument(String file) throws IOException;
 
-    Page<Document> fetchDocuments(int page, int size);
+    Page<Document> FetchDocuments(int page, int size);
     Optional<Document> SearchDocument(String title );
+
+    void DeleteDocument(String Id  ) throws IOException;
 }

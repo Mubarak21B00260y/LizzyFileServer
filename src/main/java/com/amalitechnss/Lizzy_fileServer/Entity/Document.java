@@ -24,7 +24,6 @@ public class Document {
 
 
     private LocalDateTime uploadedAt;
-     public String Category;
     private   String FilePath;
 private int  MailedFailedCount;
     private int DownloadsCount;

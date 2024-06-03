@@ -1,5 +1,7 @@
 package com.amalitechnss.Lizzy_fileServer.Service;
 import com.amalitechnss.Lizzy_fileServer.Entity.Document;
+import com.amalitechnss.Lizzy_fileServer.Exceptions.DocumentNotFoundException;
+import com.amalitechnss.Lizzy_fileServer.Exceptions.DocumentTitleExistsException;
 import com.amalitechnss.Lizzy_fileServer.Model.DocumentDTO;
 import com.amalitechnss.Lizzy_fileServer.Repository.DocumentRepository;
 import lombok.AllArgsConstructor;
@@ -18,7 +20,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -39,7 +40,7 @@ public class DocumentServiceImpl implements  DocumentService{
     }
 
 
-    public void UploadDocument(MultipartFile file, DocumentDTO documentDTO) throws IOException {
+    public String UploadDocument(MultipartFile file, DocumentDTO documentDTO) throws IOException {
         String Filename= file.getOriginalFilename();
          String dir= System.getProperty("user.dir")+ File.separator+ FilePath;
          Path Target=Paths.get(dir).resolve(Filename);
@@ -56,13 +57,16 @@ public class DocumentServiceImpl implements  DocumentService{
  }
  // mock   of the document saving, to be fully implemented later
     Document document= new Document();
-  document.setTitle(documentDTO.getTitle());
+    document.setTitle(documentDTO.getTitle());
+
   document.setDescription(documentDTO.getDescription());
   document.setUploadedAt(LocalDateTime.now());
   document.setFilePath(Target.toString());
-
+     if (documentRepository.existsByTitle(documentDTO.getTitle()))
+     throw  new DocumentTitleExistsException("document title already exists");
   documentRepository.save(document);
 
+        return Filename;
     }
     public UrlResource DownloadDocument (String Filename) throws  IOException {
 
@@ -80,7 +84,8 @@ public class DocumentServiceImpl implements  DocumentService{
 
     }
 
-     public Page<Document> fetchDocuments(int page, int size) {
+     public Page<Document> FetchDocuments(int page, int size) {
+
          PageRequest pageable= PageRequest.of(page, size);
 
         return  documentRepository.findAll(pageable);
@@ -89,11 +94,25 @@ public class DocumentServiceImpl implements  DocumentService{
 
     public Optional<Document> SearchDocument(String Title ) {
 
-        return  documentRepository.findByTitle(Title);
+        Optional<Document> document= documentRepository.findByTitle(Title);
+        if (document.isEmpty()){
+
+            throw new DocumentNotFoundException("no matching document  with title found");
+        }
+        return  document;
+
 
     }
 
+    public void DeleteDocument(String Id  ) throws IOException{
+            Optional<Document> document= documentRepository.findById(Id);
+
+            if( document.isEmpty()) {
+
+                throw  new DocumentNotFoundException("document not found");
 
 
+    }
+        documentRepository.deleteById(Id);
 
-}
+} }

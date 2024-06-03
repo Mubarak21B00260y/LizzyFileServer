@@ -31,7 +31,7 @@ public class DocumentController {
     //@RequestMapping("file")
     @PostMapping("/api/upload/single")
     @ResponseBody
-    public ResponseEntity upload(@RequestParam() MultipartFile file , @ModelAttribute DocumentDTO documentDTO) {
+    public ResponseEntity Upload(@RequestParam() MultipartFile file , @ModelAttribute DocumentDTO documentDTO) {
 
         try {
             documentService.UploadDocument(file,documentDTO);
@@ -63,10 +63,10 @@ public class DocumentController {
      }
 
     @GetMapping("api/get/all")
-    public ResponseEntity<Stream<Document>> getDocuments (@RequestParam(defaultValue = "0" )int page, @RequestParam ( defaultValue = "10 " )int size ) {
+    public ResponseEntity<Stream<Document>> GetAllDocuments (@RequestParam(defaultValue = "0" )int page, @RequestParam ( defaultValue = "10 " )int size ) {
 
 
-        Page<Document> fetchedDocuments= documentService.fetchDocuments(page, size);
+        Page<Document> fetchedDocuments= documentService.FetchDocuments(page, size);
         if(fetchedDocuments.hasContent())
            return  ResponseEntity.ok(fetchedDocuments.get());
         else
@@ -75,9 +75,27 @@ public class DocumentController {
 
 
     @GetMapping("api/search/file")
-    public ResponseEntity<Document> SearchDocument (@RequestParam String title ) {
+    public ResponseEntity<Optional<Document>> SearchDocument (@RequestParam String title ) {
         Optional < Document> document =  documentService.SearchDocument(title);
- return  document.map(ResponseEntity::ok).orElseGet(()-> ResponseEntity.notFound().build());
+
+      return     ResponseEntity.ok().body(document);
+
+
+    }
+    @DeleteMapping("api/delete/file/{Id}")
+
+    public ResponseEntity<String> DeleteDocument ( @PathVariable Long Id)  {
+        try {
+            documentService.DeleteDocument(String.valueOf(Id));
+
+            return  ResponseEntity.ok().body("File deleted successfully ");
+        } catch (IOException e) {
+
+
+            return  ResponseEntity.internalServerError().build();
+        }
+
+
 
     }
 
