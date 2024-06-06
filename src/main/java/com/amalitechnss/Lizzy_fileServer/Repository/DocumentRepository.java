@@ -9,4 +9,5 @@ public interface DocumentRepository extends JpaRepository<Document,String> {
 
     Optional<Document> findByTitle(String  title);
     boolean  existsByTitle(String title);
+    Optional<Document>findByFilePath(String FilePath);
 }

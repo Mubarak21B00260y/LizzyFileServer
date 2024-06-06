@@ -1,12 +1,16 @@
 package com.amalitechnss.Lizzy_fileServer.Entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.hibernate.Length;
 
 import java.time.LocalDateTime;
 
+
+@Data
+@NoArgsConstructor
 @Entity
 public class User {
 
@@ -14,8 +18,13 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
 
     private  Long UserId;
-    private String Username;
-    private LocalDateTime CreatedAt;
-    private  String Role;
-   // private Set< Document>  Documents;
+    private String firstname;
+    private  String lastname;
+    @Column(nullable = false, unique = true)
+    private  String email;
+    @Column(length = 60)
+    private String password;
+    private  String role;
+    private  boolean isEnabled= false;
+
 }

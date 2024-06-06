@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 
 
 @NoArgsConstructor
@@ -23,19 +24,20 @@ public class Document {
 
 
 
-    private LocalDateTime uploadedAt;
-    private   String FilePath;
+    private Date uploadedAt;
+    private   String filePath;
 private int  MailedFailedCount;
     private int DownloadsCount;
-//  public Document( String  filepath, String  title , String description, String category ) {
-// FilePath=filepath;
-//  Description=description;
-//  Title=title;
-//  Category=category;
-//}
 
 
 
+
+
+
+    public  void  incrementDownloadsCount(){
+
+         this.DownloadsCount++;
+    }
 }
 
 

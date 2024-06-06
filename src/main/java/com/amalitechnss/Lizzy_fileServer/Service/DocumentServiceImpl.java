@@ -20,19 +20,20 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.Optional;
 
 @Service
-@NoArgsConstructor
-@AllArgsConstructor
+
 public class DocumentServiceImpl implements  DocumentService{
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(DocumentServiceImpl.class);
     @Value("${file.storage}")
     private String FilePath;
-    DocumentRepository documentRepository;
 
-    DocumentDTO documentDTO;
-    @Autowired
+    private DocumentRepository documentRepository;
+   private DocumentDTO documentDTO;
+
     public DocumentServiceImpl(DocumentRepository documentRepository, DocumentDTO documentDTO ) {
         this.documentRepository = documentRepository;
         this.documentDTO=documentDTO;
@@ -49,19 +50,20 @@ public class DocumentServiceImpl implements  DocumentService{
 
      file.transferTo(Target.toFile());
    log.info(" saved  file ");
-   //System.out.println(dir);
+
    System.out.println(FilePath);
  }  catch (IOException e){
       log.warn(" not save file");
      throw  new IOException(e.getMessage());
  }
- // mock   of the document saving, to be fully implemented later
+
     Document document= new Document();
     document.setTitle(documentDTO.getTitle());
 
   document.setDescription(documentDTO.getDescription());
-  document.setUploadedAt(LocalDateTime.now());
+  document.setUploadedAt(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()) );
   document.setFilePath(Target.toString());
+
      if (documentRepository.existsByTitle(documentDTO.getTitle()))
      throw  new DocumentTitleExistsException("document title already exists");
   documentRepository.save(document);
@@ -75,7 +77,14 @@ public class DocumentServiceImpl implements  DocumentService{
 
             Path Target=Paths.get(dir).resolve(Filename).normalize();
                log.info(Target.toString());
+               Optional<Document> optionalDocument=  documentRepository.findByFilePath(Target.toString());
+                Document document=optionalDocument.get();
+                document.incrementDownloadsCount();
+                documentRepository.save(document);
+
+
             return   new UrlResource(Target.toUri());
+
         }
          catch (IOException e ) {
 
