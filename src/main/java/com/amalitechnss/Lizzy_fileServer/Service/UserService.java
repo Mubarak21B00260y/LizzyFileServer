@@ -11,5 +11,5 @@ public interface UserService {
     User RegisterUser(UserDTO userDTO) throws IOException;
 
 
-    void SaveVerificationTokensForUser( String token,User user);
+    void SaveVerificationTokenForUser(String token, User user);
 }

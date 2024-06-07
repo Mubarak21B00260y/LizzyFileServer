@@ -2,11 +2,11 @@ package com.amalitechnss.Lizzy_fileServer.Service;
 
 import com.amalitechnss.Lizzy_fileServer.Entity.User;
 import com.amalitechnss.Lizzy_fileServer.Entity.UserVerificationToken;
-import com.amalitechnss.Lizzy_fileServer.Event.RegistrationCompleteEvent;
+
 import com.amalitechnss.Lizzy_fileServer.Model.UserDTO;
 import com.amalitechnss.Lizzy_fileServer.Repository.UserRepository;
 import com.amalitechnss.Lizzy_fileServer.Repository.UserVerificationTokenRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -21,11 +21,11 @@ private  UserRepository userRepository;
 private ApplicationEventPublisher applicationEventPublisher;
 private UserVerificationTokenRepository userVerificationTokenRepository;
 
-    public UserServiceImp(UserDTO userDTO, UserRepository userRepository ,PasswordEncoder passwordEncoder ,ApplicationEventPublisher applicationEventPublisher,UserVerificationTokenRepository userVerificationTokenRepository) {
+    public UserServiceImp(UserDTO userDTO, UserRepository userRepository ,PasswordEncoder passwordEncoder ,UserVerificationTokenRepository userVerificationTokenRepository) {
         this.userDTO = userDTO;
         this.userRepository=userRepository;
         this.passwordEncoder=passwordEncoder;
-        this.applicationEventPublisher=applicationEventPublisher;
+
         this.userVerificationTokenRepository=userVerificationTokenRepository;
     }
 
@@ -40,14 +40,14 @@ private UserVerificationTokenRepository userVerificationTokenRepository;
         user.setRole("USER");
         userRepository.save(user);
 
-       applicationEventPublisher.publishEvent(new RegistrationCompleteEvent(user,""));
+
 
         return user;
     }
 
 
 
-    public void  SaveVerificationTokensForUser( String token, User user) {
+    public void SaveVerificationTokenForUser(String token, User user) {
         UserVerificationToken  userVerificationToken= new UserVerificationToken(token, user);
 
 userVerificationTokenRepository.save(userVerificationToken);
