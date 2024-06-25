@@ -2,7 +2,9 @@ package com.amalitechnss.Lizzy_fileServer.Service;
 
 
 import com.amalitechnss.Lizzy_fileServer.Entity.Document;
-import com.amalitechnss.Lizzy_fileServer.Model.DocumentDTO;
+import com.amalitechnss.Lizzy_fileServer.Requests.DocumentUploadRequest;
+import com.amalitechnss.Lizzy_fileServer.Requests.EditDocumentRequest;
+import jakarta.mail.MessagingException;
 import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -15,10 +17,10 @@ import java.util.Optional;
 
 
 public interface DocumentService {
-    //void SaveDocument(MultipartFile file) throws IOException;
 
 
-    String UploadDocument(MultipartFile file, DocumentDTO documentDTO) throws IOException;
+
+    void UploadDocument(MultipartFile file, DocumentUploadRequest documentUploadRequest) throws IOException;
 
     UrlResource DownloadDocument(String file) throws IOException;
 
@@ -26,4 +28,7 @@ public interface DocumentService {
     Optional<Document> SearchDocument(String title );
 
     void DeleteDocument(String Id  ) throws IOException;
+
+    void ShareFile(String Recipient, String title) throws MessagingException;
+    void EditDocument(String Id, EditDocumentRequest editDocumentRequest);
 }

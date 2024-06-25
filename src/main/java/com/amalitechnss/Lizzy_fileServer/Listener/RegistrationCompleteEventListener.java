@@ -1,40 +1,40 @@
 package com.amalitechnss.Lizzy_fileServer.Listener;
 
-import com.amalitechnss.Lizzy_fileServer.Entity.User;
+import com.amalitechnss.Lizzy_fileServer.Authentication.AccountTokenService;
+
 import com.amalitechnss.Lizzy_fileServer.Event.RegistrationCompleteEvent;
+
 import com.amalitechnss.Lizzy_fileServer.Service.EmailService;
-import com.amalitechnss.Lizzy_fileServer.Service.UserService;
+import com.amalitechnss.Lizzy_fileServer.Service.Enums.EmailTemplate;
+
+import jakarta.mail.MessagingException;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
-
-import java.util.UUID;
+@Slf4j
+@RequiredArgsConstructor
 @Component
 public class RegistrationCompleteEventListener implements ApplicationListener<RegistrationCompleteEvent> {
- private  UserService userService;
- private EmailService emailService;
- private  final String AppMail="";
+ private final EmailService emailService;
 
-
-
-    public RegistrationCompleteEventListener(UserService userService, EmailService emailService) {
-        this.userService = userService;
-        this.emailService=emailService;
-    }
+ private  final AccountTokenService accountTokenService;
 
     @Override
     public void onApplicationEvent(RegistrationCompleteEvent event) {
-        User user= event.getUser();
+     var  ConfirmToken= accountTokenService.CreateAndSaveVerificationToken(event.getUser());
+        String Recipient = event.getEmail();
+        String username= event.getUser().getFirstname();
 
-        String token = UUID.randomUUID().toString();
-        userService.SaveVerificationTokenForUser(token, user);
-        String Recipient = user.getEmail();
-        String VerificationUrl= event.getAppUrl()+"VerifyRegistration?toke="+token;
-        String Message= "Click the link to complete your account registration :"+VerificationUrl;
         String Subject= " Complete Registration";
-        emailService.SendEmail(Recipient,Message, Subject,AppMail);
-
-
-
+        try {
+            emailService.SendCompleteRegistrationEmail(Recipient,username, EmailTemplate.Confirm_Account,ConfirmToken,Subject);
+        } catch (MessagingException e) {
+            throw new RuntimeException(e);
+        }
 
     }
+
+
 }

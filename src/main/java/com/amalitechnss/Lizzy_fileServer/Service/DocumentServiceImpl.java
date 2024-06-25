@@ -1,13 +1,16 @@
 package com.amalitechnss.Lizzy_fileServer.Service;
+
 import com.amalitechnss.Lizzy_fileServer.Entity.Document;
-import com.amalitechnss.Lizzy_fileServer.Exceptions.DocumentNotFoundException;
-import com.amalitechnss.Lizzy_fileServer.Exceptions.DocumentTitleExistsException;
-import com.amalitechnss.Lizzy_fileServer.Model.DocumentDTO;
+import com.amalitechnss.Lizzy_fileServer.Exceptions.Exceptions.DocumentNotFoundException;
+import com.amalitechnss.Lizzy_fileServer.Exceptions.Exceptions.DocumentTitleExistsException;
+import com.amalitechnss.Lizzy_fileServer.Requests.DocumentUploadRequest;
+import com.amalitechnss.Lizzy_fileServer.Requests.EditDocumentRequest;
 import com.amalitechnss.Lizzy_fileServer.Repository.DocumentRepository;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+
+import com.amalitechnss.Lizzy_fileServer.Service.Enums.EmailTemplate;
+import jakarta.mail.MessagingException;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
@@ -17,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
@@ -25,103 +29,132 @@ import java.util.Date;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 
-public class DocumentServiceImpl implements  DocumentService{
+public class DocumentServiceImpl implements DocumentService {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(DocumentServiceImpl.class);
     @Value("${file.storage}")
-    private String FilePath;
+    private String storageLocation;
+    private final EmailService emailService;
+    private final DocumentRepository documentRepository;
 
-    private DocumentRepository documentRepository;
-   private DocumentDTO documentDTO;
+    public void UploadDocument(MultipartFile file, DocumentUploadRequest documentUploadRequest) throws IOException {
+        String Filename = file.getOriginalFilename();
+        if (Filename != null) {
+            String dir = System.getProperty("user.dir") + File.separator + storageLocation;
+            Path Target = Paths.get(dir).resolve(Filename);
 
-    public DocumentServiceImpl(DocumentRepository documentRepository, DocumentDTO documentDTO ) {
-        this.documentRepository = documentRepository;
-        this.documentDTO=documentDTO;
-
-    }
-
-
-    public String UploadDocument(MultipartFile file, DocumentDTO documentDTO) throws IOException {
-        String Filename= file.getOriginalFilename();
-         String dir= System.getProperty("user.dir")+ File.separator+ FilePath;
-         Path Target=Paths.get(dir).resolve(Filename);
-
- try {
-
-     file.transferTo(Target.toFile());
-   log.info(" saved  file ");
-
-   System.out.println(FilePath);
- }  catch (IOException e){
-      log.warn(" not save file");
-     throw  new IOException(e.getMessage());
- }
-
-    Document document= new Document();
-    document.setTitle(documentDTO.getTitle());
-
-  document.setDescription(documentDTO.getDescription());
-  document.setUploadedAt(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()) );
-  document.setFilePath(Target.toString());
-
-     if (documentRepository.existsByTitle(documentDTO.getTitle()))
-     throw  new DocumentTitleExistsException("document title already exists");
-  documentRepository.save(document);
-
-        return Filename;
-    }
-    public UrlResource DownloadDocument (String Filename) throws  IOException {
-
-        try{
-            String dir= System.getProperty("user.dir")+ File.separator+  FilePath;
-
-            Path Target=Paths.get(dir).resolve(Filename).normalize();
-               log.info(Target.toString());
-               Optional<Document> optionalDocument=  documentRepository.findByFilePath(Target.toString());
-                Document document=optionalDocument.get();
-                document.incrementDownloadsCount();
-                documentRepository.save(document);
+            file.transferTo(Target.toFile());
 
 
-            return   new UrlResource(Target.toUri());
+            Document document = new Document();
+            document.setTitle(documentUploadRequest.getTitle());
+
+            document.setDescription(documentUploadRequest.getDescription());
+            document.setUploadedAt(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()));
+            document.setFilePath(Target.toString());
+            document.setFilename(Filename);
+
+            if (documentRepository.existsByTitle(documentUploadRequest.getTitle())) {
+                throw new DocumentTitleExistsException("document title already exists");
+            }
+
+            documentRepository.save(document);
 
         }
-         catch (IOException e ) {
-
-            throw  new IOException(e.getMessage());
-        }
 
     }
 
-     public Page<Document> FetchDocuments(int page, int size) {
+    public UrlResource DownloadDocument(String title) throws MalformedURLException {
 
-         PageRequest pageable= PageRequest.of(page, size);
+        Optional<Document> document = documentRepository.findByTitle(title);
+        if (document.isEmpty()) {
 
-        return  documentRepository.findAll(pageable);
+            throw new DocumentNotFoundException(" file  document not found");
+        }
 
-     }
+        var documentFile = document.get();
 
-    public Optional<Document> SearchDocument(String Title ) {
+        String directory = System.getProperty("user.dir") + File.separator + storageLocation;
 
-        Optional<Document> document= documentRepository.findByTitle(Title);
-        if (document.isEmpty()){
+        Path Target = Paths.get(directory).resolve(documentFile.getFilename()).normalize();
+
+        documentFile.IncrementDownloadsCount();
+        documentRepository.save(documentFile);
+        return new UrlResource(Target.toUri());
+
+    }
+
+    public Page<Document> FetchDocuments(int page, int size) {
+
+        PageRequest pageable = PageRequest.of(page, size);
+
+        return documentRepository.findAll(pageable);
+
+    }
+
+    public Optional<Document> SearchDocument(String title) {
+
+        Optional<Document> document = documentRepository.findByTitle(title);
+        if (document.isEmpty()) {
 
             throw new DocumentNotFoundException("no matching document  with title found");
         }
-        return  document;
+        return document;
 
 
     }
 
-    public void DeleteDocument(String Id  ) throws IOException{
-            Optional<Document> document= documentRepository.findById(Id);
+    public void DeleteDocument(String Id) {
+        Optional<Document> document = documentRepository.findById(Id);
 
-            if( document.isEmpty()) {
+        if (document.isEmpty()) {
 
-                throw  new DocumentNotFoundException("document not found");
+            throw new DocumentNotFoundException("document not found");
 
 
-    }
+        }
         documentRepository.deleteById(Id);
 
-} }
+    }
+
+
+    public void ShareFile(String Recipient, String title) throws MessagingException {
+
+
+        Optional<Document> optionalDocument = documentRepository.findByTitle(title);
+
+        if (optionalDocument.isEmpty()) {
+            throw new DocumentNotFoundException(" document not found");
+        }
+        String subject = "New Attachment";
+        Document document = optionalDocument.get();
+
+        String filename = document.getFilename();
+        String directory = System.getProperty("user.dir") + File.separator + storageLocation;
+        Path Target = Paths.get(directory).resolve(filename).normalize();
+        emailService.SendAttachmentMail(Recipient, subject, Target.toFile(), EmailTemplate.ATTACHMENT);
+        document.IncrementMailedFilesCount();
+        documentRepository.save(document);
+
+
+    }
+
+    public void EditDocument(String Id, EditDocumentRequest editDocumentRequest) {
+
+        Optional<Document> optionalDocument = documentRepository.findById(Id);
+        if (optionalDocument.isPresent()) {
+            Document document = optionalDocument.get();
+            document.setTitle(editDocumentRequest.getNewTitle());
+            document.setDescription(editDocumentRequest.getNewDescription());
+            if (documentRepository.existsByTitle(editDocumentRequest.getNewTitle())) {
+                throw new DocumentTitleExistsException(" document with this title already exists");
+            }
+            documentRepository.save(document);
+        }
+
+
+    }
+
+
+}

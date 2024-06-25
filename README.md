@@ -1,1 +1,1 @@
-A digital platform  for acessing and downloading files, built using springboot and react , with mySQL and Spring security for authentication
+A digital platform  for accessing and downloading files, built using SpringBoot and react , with mySQL and Spring security for authentication

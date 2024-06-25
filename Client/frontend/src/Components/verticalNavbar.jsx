@@ -1,0 +1,28 @@
+import React from 'react';
+import logo from '../assets/images/logo.jpg'; // Replace with your logo
+import avatar from '../assets/images/avatar.png'; // Replace with the user's avatar image
+
+const Navbar = ({ user, handleLogout }) => {
+  return (
+    <div className="w-1/5 bg-gray-800 text-gray-100 p-4 flex flex-col items-center">
+      <div className="flex items-center mb-8">
+        <img className='w-20 h-20 mr-2' src={logo} alt="logo" />
+        <span className="text-xl font-semibold">Document Management</span>
+      </div>
+      <div className="flex flex-col items-center space-y-4">
+        <img src={user.avatarUrl} alt="User Avatar" className="w-16 h-16 rounded-full" />
+        <span className="text-lg font-medium">{user.name}</span>
+        <div className="flex items-center space-x-2 cursor-pointer" onClick={handleLogout}>
+          <div className="text-gray-300">&gt;</div>
+          <span>Logout</span>
+        </div>
+        <div className="flex items-center space-x-2 cursor-pointer">
+          <div className="text-gray-300">&gt;</div>
+          <span>Reset Password</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Navbar;
