@@ -3,7 +3,6 @@ package com.amalitechnss.Lizzy_fileServer.SecurityConfig;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -33,19 +32,22 @@ public class SecurityFilter {
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> {
-                    auth.requestMatchers(HttpMethod.POST, "/api/auth/**").permitAll();
-                   // auth.requestMatchers(HttpMethod.GET, "/api/auth/**").permitAll();
-                   // auth.requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll();
+                    auth.requestMatchers( "/api/auth/**").permitAll();
+
+
                     auth.requestMatchers( "/error").permitAll();
-//                    auth.requestMatchers( "api/get/all").hasAnyAuthority("USER");
-                    auth.requestMatchers("api/get/all").authenticated();
-                    auth.requestMatchers("/api/upload/single").authenticated();
-                    auth.requestMatchers("api/share/file/{filename}").authenticated();
-                    auth.requestMatchers("api/account/resetPassword").authenticated();
+//
+                    auth.requestMatchers("api/get/all").hasAuthority("ROLE_ADMIN,ROLE_USER");
+                    auth.requestMatchers("/api/upload/single").hasAuthority("ROLE_ADMIN");
+                    auth.requestMatchers("api/share/file/{filename}").hasAnyAuthority("USER,ADMIN");
+                    auth.requestMatchers("api/account/resetPassword").hasAnyAuthority("ADMIN,USER");
                     auth.requestMatchers("api/account/forgotPassword").permitAll();
                     auth.requestMatchers("api/account/ConfirmAccountRecovery").permitAll();
                     auth.requestMatchers("api/account/setPassword").permitAll();
-                    //todo: add the additional routes;
+                    auth.requestMatchers("api/download/file").hasAnyAuthority("ROLE_USER","ROLE_ADMIN");
+                    auth.requestMatchers("api/delete/file/{Id}").hasAnyAuthority("ROLE_ADMIN");
+                    auth.requestMatchers("api/edit/file/{Id}").hasAuthority("ROLE_ADMIN");
+                    auth.requestMatchers("api/search/file").hasAnyAuthority("ROLE_ADMIN,ROLE_USER");
                     auth.anyRequest().permitAll();
                 });
         return httpSecurity.build();
