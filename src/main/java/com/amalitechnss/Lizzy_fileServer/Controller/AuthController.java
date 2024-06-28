@@ -10,11 +10,11 @@ import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
-
 @RestController
 @RequiredArgsConstructor
 public class AuthController {
@@ -24,9 +24,9 @@ public class AuthController {
 
 
     @PostMapping("/api/auth/Register")
-
     @ResponseStatus(HttpStatus.ACCEPTED)
     public ResponseEntity<?> Register(@RequestBody @Validated RegisterRequest registerRequest) {
+
         authenticationService.RegisterUser(registerRequest);
           return  ResponseEntity.accepted().build();
 
@@ -38,8 +38,14 @@ public class AuthController {
          authenticationService.ConfirmRegistration(token);
     }
   @PostMapping("api/auth/login")
-    public ResponseEntity<AuthenticationResponse> Login(@RequestBody @Validated AuthenticationRequest authenticationRequest) {
-        return  ResponseEntity.ok(authenticationService.Login(authenticationRequest));
+    public ResponseEntity<AuthenticationResponse> Login(@RequestBody @Validated AuthenticationRequest authenticationRequest) throws Exception {
+        try {
+             authenticationService.Login(authenticationRequest);
+        }
+        catch (Exception e) {
+             throw   new Exception(e.getMessage());
+        }
+        return  ResponseEntity.ok().body(authenticationService.Login(authenticationRequest));
         }
 
     @PatchMapping("api/account/resetPassword")

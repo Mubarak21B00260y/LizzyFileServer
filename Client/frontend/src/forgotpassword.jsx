@@ -1,31 +1,41 @@
 import React, { useState } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import logo from './assets/images/logo.jpg';
 import './index.css';
+import { SyncLoader } from 'react-spinners';
 
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState('');
+  const navigate = useNavigate();
 
   const handleEmailChange = (e) => {
     setEmail(e.target.value);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Add logic to send a password recovery link to the entered email.
-    console.log('Password recovery link sent to:', email);
+    try {
+      await axios.post('http://localhost:8080/api/account/forgotPassword', null, { params: { email } });
+      toast.success('Password recovery link sent to your email.');
+      setTimeout(() => navigate('/accountrecovery'), 2000);
+    } catch (error) {
+      toast.error('Failed to send recovery code. Please try again.');
+    }
   };
 
   return (
     <section className="bg-gray-50 dark:bg-gray-900">
+      <ToastContainer />
       <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
-        
         <div className="w-full bg-white rounded-lg shadow dark:border sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
           <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
             <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
               Forgot Your Password?
             </h1>
             <p className="text-gray-600 dark:text-gray-400">
-              Enter your email address and we'll send you a link to reset your password.
+              Enter your email address and we'll send you a code to reset your password.
             </p>
             <form className="space-y-4 md:space-y-6" onSubmit={handleSubmit}>
               <div>
@@ -53,7 +63,7 @@ const ForgotPasswordPage = () => {
                   type="submit"
                   className="w-1/2 text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
                 >
-                  Send Link
+                  {loading ? <SyncLoader size={8} color={"#ffffff"} /> : 'Send code'}
                 </button>
               </div>
             </form>
@@ -62,6 +72,6 @@ const ForgotPasswordPage = () => {
       </div>
     </section>
   );
-}
+};
 
 export default ForgotPasswordPage;

@@ -2,6 +2,7 @@ import React from 'react';
 
 const ShareModal = ({ openModal, setOpenModal, email, handleEmailChange, handleShare }) => {
   return (
+    
     openModal && (
       <div className="fixed inset-0 z-10 flex items-center justify-center bg-black bg-opacity-30">
         <div className="bg-white p-6 rounded-lg shadow-lg">

@@ -9,15 +9,9 @@ import lombok.Setter;
 @Setter
 
 public class EditDocumentRequest {
-@NotEmpty
-@NotBlank
-    private   String newTitle;
-@NotEmpty
-@NotBlank
-    private    String  newDescription;
 
-//    public EditDocumentRequest(String newTitle, String newDescription) {
-//        NewTitle = newTitle;
-//        NewDescription = newDescription;
-//    }
+    private String newTitle;
+    private String newDescription;
 }
+
+

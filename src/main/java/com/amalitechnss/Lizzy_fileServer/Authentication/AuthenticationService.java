@@ -5,6 +5,7 @@ import com.amalitechnss.Lizzy_fileServer.Entity.User;
 import com.amalitechnss.Lizzy_fileServer.Event.RegistrationCompleteEvent;
 import com.amalitechnss.Lizzy_fileServer.Exceptions.Exceptions.InvalidAccountVerificationException;
 
+import com.amalitechnss.Lizzy_fileServer.Exceptions.Exceptions.UserAlreadyExistsException;
 import com.amalitechnss.Lizzy_fileServer.Repository.AccountVerificationTokenRepository;
 import com.amalitechnss.Lizzy_fileServer.Repository.RoleRepository;
 import com.amalitechnss.Lizzy_fileServer.Repository.UserRepository;
@@ -68,6 +69,13 @@ public class AuthenticationService {
         user.setRoles(roleList.stream().toList());
         user.setEnabled(false);
         user.setAccountLocked(false);
+
+          var  optionalUser  = userRepository.findByEmail(request.getEmail());
+          if (optionalUser!=null){
+              throw  new RuntimeException(" User with this email  already exists , please go back to the  login page to login");
+
+          }
+
         userRepository.save(user);
 
         eventPublisher.publishEvent(new RegistrationCompleteEvent(user, request.getEmail()));
@@ -98,14 +106,12 @@ public class AuthenticationService {
 
     public void ResetPassword(ResetPasswordRequest request, Principal connectedUser) {
         User user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
-        //userRepository.save(user);
 
         if (!passwordEncoder().matches(request.getOldPassword(), user.getPassword())) {
-            throw new BadCredentialsException(" invalid");
+            throw new BadCredentialsException(" incorrect old password");
         }
         user.setPassword(passwordEncoder().encode(request.getNewPassword()));
         userRepository.save(user);
-
 
     }
 

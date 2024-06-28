@@ -8,7 +8,8 @@ import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.UrlResource;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -17,8 +18,10 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Optional;
+import java.util.List;
 import java.util.stream.Stream;
 
 @RestController
@@ -44,28 +47,31 @@ public class DocumentController {
 
     @GetMapping("api/download/file")
 
-    public ResponseEntity<UrlResource> Download(@RequestParam String title) throws IOException {
+    public ResponseEntity<Resource> Download(@RequestParam String title) throws IOException {
+   Resource  document= documentService.DownloadDocument(title);
 
-        UrlResource resource = documentService.DownloadDocument(title);
-        return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename= \"" + resource.getFilename() + "\"").contentType(MediaType.APPLICATION_OCTET_STREAM).body(resource);
+        return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename= \"" + document.getFilename() + "\"").contentType(MediaType.APPLICATION_OCTET_STREAM).body(document);
 
     }
 
     @GetMapping("api/get/all")
-    public ResponseEntity<Stream<Document>> GetAllDocuments(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10 ") int size) {
+    public ResponseEntity<Stream<Document>> GetAllDocuments(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10 ") int size) throws Exception {
+ try {
+     Page<Document> fetchedDocuments = documentService.FetchDocuments(page, size);
+     if (fetchedDocuments.hasContent())
+         return ResponseEntity.ok(fetchedDocuments.get());
+     else
+         return ResponseEntity.noContent().build();
+ } catch ( Exception exception) {
 
-
-        Page<Document> fetchedDocuments = documentService.FetchDocuments(page, size);
-        if (fetchedDocuments.hasContent())
-            return ResponseEntity.ok(fetchedDocuments.get());
-        else
-            return ResponseEntity.noContent().build();
+     throw  new Exception(exception.getMessage());
+ }
     }
 
 
     @GetMapping("api/search/file")
-    public ResponseEntity<Optional<Document>> SearchDocument(@RequestParam String title) {
-        Optional<Document> document = documentService.SearchDocument(title);
+    public ResponseEntity<List<Document>> SearchDocument(@RequestParam String title) {
+        List<Document> document = documentService.SearchDocument(title);
 
         return ResponseEntity.ok().body(document);
 
@@ -97,7 +103,7 @@ public class DocumentController {
 
     @PatchMapping("api/edit/file/{Id}")
 
-    public ResponseEntity<?> editDocument(@PathVariable Long Id, @Validated @RequestBody EditDocumentRequest editDocumentRequest) {
+    public ResponseEntity<?> editDocument(@PathVariable Long Id,  @RequestBody EditDocumentRequest editDocumentRequest) {
         documentService.EditDocument(String.valueOf(Id), editDocumentRequest);
 
         return ResponseEntity.accepted().build();

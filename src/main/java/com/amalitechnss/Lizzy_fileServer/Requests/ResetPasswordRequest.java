@@ -16,8 +16,5 @@ public class ResetPasswordRequest {
     @NotBlank
     private   String newPassword  ;
 
-//    public ResetPasswordRequest(String oldPassword, String newPassword) {
-//        OldPassword = oldPassword;
-//        NewPassword = newPassword;
-//    }
+
 }

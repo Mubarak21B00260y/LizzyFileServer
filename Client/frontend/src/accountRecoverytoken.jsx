@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import SyncLoader from 'react-spinners/SyncLoader';
 import { css } from '@emotion/react';
-import { toast, ToastContainer } from 'react-toastify';
-
+import { SyncLoader } from 'react-spinners';
 
 const override = css`
   display: block;
@@ -12,7 +10,7 @@ const override = css`
   border-color: red;
 `;
 
-const ConfirmRegistration = () => {
+const AccountRecoveryToken = () => {
   const [code, setCode] = useState(Array(6).fill(''));
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -25,7 +23,6 @@ const ConfirmRegistration = () => {
       newCode[index] = value;
       setCode(newCode);
 
-      // Move to next input if the current input is filled
       if (value !== '' && index < 5) {
         document.getElementById(`code-input-${index + 1}`).focus();
       }
@@ -38,18 +35,13 @@ const ConfirmRegistration = () => {
     setError(null);
 
     try {
-      const response = await axios.get(`http://localhost:8080/api/auth/verifyRegistration`, {
-        params: { token: codeString }
+      const response = await axios.post(`http://localhost:8080/api/account/ConfirmAccountRecovery`, null, {
+        params: { token: codeString },
       });
 
-      if (response.status === 200) {
+      if (response.status === 202) {
         
-        toast.success('registration completed successfully reset successfully.');
-      
-        setTimeout(() => navigate('/'), 2000);
-
-
-        navigate('/');
+        navigate('/newpassword', { state: {token: codeString } });
       }
     } catch (err) {
       const errorMessage = err.response?.data?.message || 'An error occurred';
@@ -62,8 +54,8 @@ const ConfirmRegistration = () => {
   return (
     <div className="flex items-center justify-center h-screen bg-gray-100">
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-        <h2 className="text-2xl font-semibold mb-6 text-center">Confirm Registration</h2>
-        <p className="text-gray-600 mb-4 text-center">Enter the 6-digit code sent to your email to confirm your registration.</p>
+        <h2 className="text-2xl font-semibold mb-6 text-center">Account Recovery</h2>
+        <p className="text-gray-600 mb-4 text-center">Enter the 6-digit code sent to your email to recover your account</p>
         {error && <p className="text-red-500 text-center">{error}</p>}
         <div className="flex justify-center space-x-2 mb-4">
           {code.map((digit, index) => (
@@ -92,4 +84,4 @@ const ConfirmRegistration = () => {
   );
 };
 
-export default ConfirmRegistration;
+export default AccountRecoveryToken;

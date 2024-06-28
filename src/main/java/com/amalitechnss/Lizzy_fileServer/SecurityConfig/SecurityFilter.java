@@ -36,18 +36,21 @@ public class SecurityFilter {
 
 
                     auth.requestMatchers( "/error").permitAll();
-//
-                    auth.requestMatchers("api/get/all").hasAuthority("ROLE_ADMIN,ROLE_USER");
+
+                    auth.requestMatchers("api/get/all").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN");
                     auth.requestMatchers("/api/upload/single").hasAuthority("ROLE_ADMIN");
-                    auth.requestMatchers("api/share/file/{filename}").hasAnyAuthority("USER,ADMIN");
-                    auth.requestMatchers("api/account/resetPassword").hasAnyAuthority("ADMIN,USER");
+
+                    auth.requestMatchers("api/share/file/{filename}").hasAnyAuthority("USER","ADMIN");
+                    auth.requestMatchers("api/account/resetPassword").hasAnyAuthority("ROLE_ADMIN","ROLE_USER");
                     auth.requestMatchers("api/account/forgotPassword").permitAll();
                     auth.requestMatchers("api/account/ConfirmAccountRecovery").permitAll();
                     auth.requestMatchers("api/account/setPassword").permitAll();
                     auth.requestMatchers("api/download/file").hasAnyAuthority("ROLE_USER","ROLE_ADMIN");
+
                     auth.requestMatchers("api/delete/file/{Id}").hasAnyAuthority("ROLE_ADMIN");
                     auth.requestMatchers("api/edit/file/{Id}").hasAuthority("ROLE_ADMIN");
-                    auth.requestMatchers("api/search/file").hasAnyAuthority("ROLE_ADMIN,ROLE_USER");
+                    auth.requestMatchers("api/edit/file/{Id}").permitAll();
+                    auth.requestMatchers("api/search/file").hasAnyAuthority("ROLE_ADMIN","ROLE_USER");
                     auth.anyRequest().permitAll();
                 });
         return httpSecurity.build();

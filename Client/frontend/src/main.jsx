@@ -1,5 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
+
 import App from './App.jsx'
 import './index.css'
 import Signup from './Signup.jsx'
@@ -14,6 +15,6 @@ import UserHome from './UserHome.jsx'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <UserHome/>
+   <App/>
   </React.StrictMode>,
 )

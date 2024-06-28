@@ -12,6 +12,7 @@ import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -19,13 +20,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -43,10 +45,7 @@ public class DocumentServiceImpl implements DocumentService {
         if (Filename != null) {
             String dir = System.getProperty("user.dir") + File.separator + storageLocation;
             Path Target = Paths.get(dir).resolve(Filename);
-
             file.transferTo(Target.toFile());
-
-
             Document document = new Document();
             document.setTitle(documentUploadRequest.getTitle());
 
@@ -65,7 +64,7 @@ public class DocumentServiceImpl implements DocumentService {
 
     }
 
-    public UrlResource DownloadDocument(String title) throws MalformedURLException {
+    public Resource DownloadDocument(String title) throws IOException {
 
         Optional<Document> document = documentRepository.findByTitle(title);
         if (document.isEmpty()) {
@@ -74,16 +73,17 @@ public class DocumentServiceImpl implements DocumentService {
         }
 
         var documentFile = document.get();
-
         String directory = System.getProperty("user.dir") + File.separator + storageLocation;
-
         Path Target = Paths.get(directory).resolve(documentFile.getFilename()).normalize();
-
+        if (Target == null) {
+            throw new FileNotFoundException(" file does not exist");
+        }
+        Resource resource = new UrlResource(Target.toUri());
         documentFile.IncrementDownloadsCount();
         documentRepository.save(documentFile);
-        return new UrlResource(Target.toUri());
-
+        return resource;
     }
+
 
     public Page<Document> FetchDocuments(int page, int size) {
 
@@ -93,9 +93,9 @@ public class DocumentServiceImpl implements DocumentService {
 
     }
 
-    public Optional<Document> SearchDocument(String title) {
+    public List<Document> SearchDocument(String title) {
 
-        Optional<Document> document = documentRepository.findByTitle(title);
+        List<Document> document = documentRepository.findByAlikeTerms(title);
         if (document.isEmpty()) {
 
             throw new DocumentNotFoundException("no matching document  with title found");

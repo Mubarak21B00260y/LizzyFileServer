@@ -53,9 +53,9 @@ public AuthenticationProvider authenticationProvider (){
     final UrlBasedCorsConfigurationSource urlBasedCorsConfigurationSource= new UrlBasedCorsConfigurationSource();
     final CorsConfiguration configuration= new CorsConfiguration();
      configuration.setAllowCredentials(true);
-     configuration.setAllowedOrigins(Collections.singletonList("http://localhost:8080"));
+     configuration.setAllowedOrigins(Collections.singletonList("http://localhost:5175"));
      configuration.setAllowedHeaders(Arrays.asList(HttpHeaders.ORIGIN, HttpHeaders.AUTHORIZATION,HttpHeaders.ACCEPT, HttpHeaders.CONTENT_TYPE));
-     configuration.setAllowedMethods(Arrays.asList("POST, GET, PUT. DELETE, PATCH"));
+     configuration.setAllowedMethods(Arrays.asList("POST", "GET", "PUT", "DELETE", "PATCH"));
 
         urlBasedCorsConfigurationSource.registerCorsConfiguration("/**",configuration);
 
