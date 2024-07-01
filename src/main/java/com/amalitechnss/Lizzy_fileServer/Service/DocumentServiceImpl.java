@@ -6,11 +6,9 @@ import com.amalitechnss.Lizzy_fileServer.Exceptions.Exceptions.DocumentTitleExis
 import com.amalitechnss.Lizzy_fileServer.Requests.DocumentUploadRequest;
 import com.amalitechnss.Lizzy_fileServer.Requests.EditDocumentRequest;
 import com.amalitechnss.Lizzy_fileServer.Repository.DocumentRepository;
-
 import com.amalitechnss.Lizzy_fileServer.Service.Enums.EmailTemplate;
-import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.LoggerFactory;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -34,13 +32,12 @@ import java.util.Optional;
 @RequiredArgsConstructor
 
 public class DocumentServiceImpl implements DocumentService {
-    private static final org.slf4j.Logger log = LoggerFactory.getLogger(DocumentServiceImpl.class);
     @Value("${file.storage}")
     private String storageLocation;
     private final EmailService emailService;
     private final DocumentRepository documentRepository;
-
-    public void UploadDocument(MultipartFile file, DocumentUploadRequest documentUploadRequest) throws IOException {
+@SneakyThrows
+    public void UploadDocument(MultipartFile file, DocumentUploadRequest documentUploadRequest)  {
         String Filename = file.getOriginalFilename();
         if (Filename != null) {
             String dir = System.getProperty("user.dir") + File.separator + storageLocation;
@@ -57,21 +54,18 @@ public class DocumentServiceImpl implements DocumentService {
             if (documentRepository.existsByTitle(documentUploadRequest.getTitle())) {
                 throw new DocumentTitleExistsException("document title already exists");
             }
-
             documentRepository.save(document);
 
         }
 
     }
 
-    public Resource DownloadDocument(String title) throws IOException {
+    public Resource DownloadDocument(String title) throws IOException,DocumentNotFoundException {
 
         Optional<Document> document = documentRepository.findByTitle(title);
         if (document.isEmpty()) {
-
-            throw new DocumentNotFoundException(" file  document not found");
+            throw new DocumentNotFoundException(" Document not found");
         }
-
         var documentFile = document.get();
         String directory = System.getProperty("user.dir") + File.separator + storageLocation;
         Path Target = Paths.get(directory).resolve(documentFile.getFilename()).normalize();
@@ -110,7 +104,7 @@ public class DocumentServiceImpl implements DocumentService {
 
         if (document.isEmpty()) {
 
-            throw new DocumentNotFoundException("document not found");
+            throw new DocumentNotFoundException("Document not found");
 
 
         }
@@ -119,7 +113,8 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
 
-    public void ShareFile(String Recipient, String title) throws MessagingException {
+    @SneakyThrows
+    public void ShareFile(String Recipient, String title)  {
 
 
         Optional<Document> optionalDocument = documentRepository.findByTitle(title);
@@ -129,15 +124,18 @@ public class DocumentServiceImpl implements DocumentService {
         }
         String subject = "New Attachment";
         Document document = optionalDocument.get();
+ try {
 
-        String filename = document.getFilename();
-        String directory = System.getProperty("user.dir") + File.separator + storageLocation;
-        Path Target = Paths.get(directory).resolve(filename).normalize();
-        emailService.SendAttachmentMail(Recipient, subject, Target.toFile(), EmailTemplate.ATTACHMENT);
-        document.IncrementMailedFilesCount();
-        documentRepository.save(document);
-
-
+     String filename = document.getFilename();
+     String directory = System.getProperty("user.dir") + File.separator + storageLocation;
+     Path Target = Paths.get(directory).resolve(filename).normalize();
+     emailService.SendAttachmentMail(Recipient, subject, Target.toFile(), EmailTemplate.ATTACHMENT);
+     document.IncrementMailedFilesCount();
+     documentRepository.save(document);
+ }
+  catch(Exception e){
+     throw  new FileNotFoundException(" file not found");
+  }
     }
 
     public void EditDocument(String Id, EditDocumentRequest editDocumentRequest) {
@@ -153,8 +151,13 @@ public class DocumentServiceImpl implements DocumentService {
             documentRepository.save(document);
         }
 
-
     }
+
+    public long getTotalDocuments() {
+
+     return  documentRepository.count();
+    }
+
 
 
 }

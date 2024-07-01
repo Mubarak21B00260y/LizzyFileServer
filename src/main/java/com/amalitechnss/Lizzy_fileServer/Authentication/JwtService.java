@@ -27,7 +27,7 @@ public class JwtService {
     private String buildToken(Map<String, Object> ExtraClaims, UserDetails userDetails) {
         List<String> authorities = userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
         Date issuedAt = new Date(System.currentTimeMillis());
-        Date expires = new Date(issuedAt.getTime() + 2 * 60 * 60 * 1000);
+        Date expires = new Date(issuedAt.getTime() + 3 * 60 * 60 * 1000);
         return Jwts.builder().claims(ExtraClaims).subject(userDetails.getUsername()).issuedAt(issuedAt).expiration(expires).claim("authorities", authorities).signWith(generateKey()).compact();
     }
 

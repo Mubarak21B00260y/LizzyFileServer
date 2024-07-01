@@ -6,11 +6,9 @@ import com.amalitechnss.Lizzy_fileServer.Event.RegistrationCompleteEvent;
 
 import com.amalitechnss.Lizzy_fileServer.Service.EmailService;
 import com.amalitechnss.Lizzy_fileServer.Service.Enums.EmailTemplate;
-
-import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 @Slf4j
@@ -21,6 +19,7 @@ public class RegistrationCompleteEventListener implements ApplicationListener<Re
 
  private  final AccountTokenService accountTokenService;
 
+    @SneakyThrows
     @Override
     public void onApplicationEvent(RegistrationCompleteEvent event) {
      var  ConfirmToken= accountTokenService.CreateAndSaveVerificationToken(event.getUser());
@@ -28,11 +27,9 @@ public class RegistrationCompleteEventListener implements ApplicationListener<Re
         String username= event.getUser().getFirstname();
 
         String Subject= " Complete Registration";
-        try {
+
             emailService.SendCompleteRegistrationEmail(Recipient,username, EmailTemplate.Confirm_Account,ConfirmToken,Subject);
-        } catch (MessagingException e) {
-            throw new RuntimeException(e);
-        }
+
 
     }
 

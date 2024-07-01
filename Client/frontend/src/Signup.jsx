@@ -57,7 +57,7 @@ const Signup = () => {
         password: formData.password,
       });
       if (response.status === 202) {
-        setSuccess(true);
+      
        setError(false)
         navigate('/confirmRegistration');
         
@@ -182,8 +182,15 @@ const Signup = () => {
                 )}
               </button>
               <p className="text-sm font-light text-gray-500 dark:text-gray-400">
-                Already have an account? <a href="#" className="font-medium text-primary-600 hover:underline dark:text-primary-500">Sign in</a>
+                Already have an account yet?{' '}
+                <span
+                  onClick={() => navigate('/')}
+                  className="font-medium text-primary-600 hover:underline dark:text-primary-500 cursor-pointer"
+                >
+                  Sign in
+                </span>
               </p>
+              
             </form>
           </div>
         </div>

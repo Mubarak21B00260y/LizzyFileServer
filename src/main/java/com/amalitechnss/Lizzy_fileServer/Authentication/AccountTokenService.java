@@ -2,7 +2,7 @@ package com.amalitechnss.Lizzy_fileServer.Authentication;
 
 import com.amalitechnss.Lizzy_fileServer.Entity.User;
 import com.amalitechnss.Lizzy_fileServer.Repository.AccountVerificationTokenRepository;
-import com.amalitechnss.Lizzy_fileServer.User.AccountVerificationToken;
+import com.amalitechnss.Lizzy_fileServer.Entity.AccountVerificationToken;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

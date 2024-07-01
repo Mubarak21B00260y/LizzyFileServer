@@ -33,7 +33,7 @@ const AdminHome = () => {
   const [email, setEmail] = useState('');
   const [openLogoutModal, setOpenLogoutModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const itemsPerPage = 30
 
 
 
@@ -208,7 +208,7 @@ const AdminHome = () => {
       fetchDocuments();
       toast.success('Document updated successfully');
     } catch (error) {
-      console.error('Error editing document:', error);
+    
       toast.error('Error editing document');
     }
   };

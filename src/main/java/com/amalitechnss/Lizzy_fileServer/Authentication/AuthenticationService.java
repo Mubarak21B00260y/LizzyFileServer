@@ -5,21 +5,25 @@ import com.amalitechnss.Lizzy_fileServer.Entity.User;
 import com.amalitechnss.Lizzy_fileServer.Event.RegistrationCompleteEvent;
 import com.amalitechnss.Lizzy_fileServer.Exceptions.Exceptions.InvalidAccountVerificationException;
 
+import com.amalitechnss.Lizzy_fileServer.Exceptions.Exceptions.TokenExpiredException;
 import com.amalitechnss.Lizzy_fileServer.Exceptions.Exceptions.UserAlreadyExistsException;
 import com.amalitechnss.Lizzy_fileServer.Repository.AccountVerificationTokenRepository;
 import com.amalitechnss.Lizzy_fileServer.Repository.RoleRepository;
 import com.amalitechnss.Lizzy_fileServer.Repository.UserRepository;
+import com.amalitechnss.Lizzy_fileServer.Requests.AuthenticationRequest;
 import com.amalitechnss.Lizzy_fileServer.Requests.RegisterRequest;
 import com.amalitechnss.Lizzy_fileServer.Requests.ResetPasswordRequest;
 import com.amalitechnss.Lizzy_fileServer.Requests.SetNewPasswordRequest;
 import com.amalitechnss.Lizzy_fileServer.Service.EmailService;
 import com.amalitechnss.Lizzy_fileServer.Service.Enums.EmailTemplate;
-import com.amalitechnss.Lizzy_fileServer.User.AccountVerificationToken;
+import com.amalitechnss.Lizzy_fileServer.Entity.AccountVerificationToken;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -43,19 +47,27 @@ public class AuthenticationService {
     private final RoleRepository roleRepository;
     private final AccountTokenService accountTokenService;
     private final EmailService emailService;
-    
 
 
     public AuthenticationResponse Login(@Validated AuthenticationRequest authenticationRequest) {
 
         UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(authenticationRequest.getEmail(), authenticationRequest.getPassword());
-        var auth = authenticationManager.authenticate(usernamePasswordAuthenticationToken);
-        User user = (User) auth.getPrincipal();
+        try {
+            var auth = authenticationManager.authenticate(usernamePasswordAuthenticationToken);
 
-        var claims = new HashMap<String, Object>();
-        claims.put("full name", user.getFullName());
-        String JwtToken = jwtService.generateToken(claims, user);
-        return new AuthenticationResponse(JwtToken);
+            User user = (User) auth.getPrincipal();
+            if (!user.isEnabled()) {
+                throw new DisabledException("User Account not enabled, please complete registration through your email");
+            }
+
+            var claims = new HashMap<String, Object>();
+            claims.put("full name", user.getFullName());
+            String JwtToken = jwtService.generateToken(claims, user);
+            return new AuthenticationResponse(JwtToken);
+        } catch (Exception e) {
+            throw new BadCredentialsException("Invalid username or password");
+
+        }
 
     }
 
@@ -70,11 +82,11 @@ public class AuthenticationService {
         user.setEnabled(false);
         user.setAccountLocked(false);
 
-          var  optionalUser  = userRepository.findByEmail(request.getEmail());
-          if (optionalUser!=null){
-              throw  new RuntimeException(" User with this email  already exists , please go back to the  login page to login");
+        var optionalUser = userRepository.findByEmail(request.getEmail());
+        if (optionalUser != null) {
+            throw new UserAlreadyExistsException("User  with this email already exists, please login");
 
-          }
+        }
 
         userRepository.save(user);
 
@@ -85,13 +97,13 @@ public class AuthenticationService {
 
         AccountVerificationToken savedToken = accountVerificationTokenRepository.findByToken(token);
         if (savedToken == null) {
-            throw new RuntimeException(" invalid token");
+            throw new InvalidAccountVerificationException("token is invalid");
         }
 
         if (LocalDateTime.now().isAfter(savedToken.getExpiresAt())) {
 
             eventPublisher.publishEvent(new RegistrationCompleteEvent(savedToken.getUser(), savedToken.getUser().getEmail()));
-            throw new RuntimeException(" token has expired, a new token has been sent to the same email");
+            throw new TokenExpiredException(" token has expired, a new token has been sent to the same email");
         }
 
         Optional<User> optionalUser = userRepository.findById(savedToken.getUser().getUserId());
@@ -114,8 +126,8 @@ public class AuthenticationService {
         userRepository.save(user);
 
     }
-
-    public void ForgotPassword(String email) throws MessagingException {
+   @SneakyThrows
+    public void ForgotPassword(String email)  {
 
         User user = userRepository.findByEmail(email);
         if (user == null) {
@@ -146,12 +158,11 @@ public class AuthenticationService {
     public void SetPassword(SetNewPasswordRequest request) {
         AccountVerificationToken savedToken = accountVerificationTokenRepository.findByToken(request.getToken());
         if (savedToken == null) {
-            throw new RuntimeException("USER NOT FOUND");
+            throw new InvalidAccountVerificationException("Invalid token");
         }
         User user = savedToken.getUser();
         user.setPassword(passwordEncoder().encode(request.getNewPassword()));
         userRepository.save(user);
-
 
     }
 

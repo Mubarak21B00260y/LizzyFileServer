@@ -1,11 +1,9 @@
-package com.amalitechnss.Lizzy_fileServer.User;
+package com.amalitechnss.Lizzy_fileServer.Entity;
 
-import com.amalitechnss.Lizzy_fileServer.Entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Entity
 @AllArgsConstructor

@@ -5,7 +5,6 @@ import { css } from '@emotion/react';
 import SyncLoader from 'react-spinners/SyncLoader';
 import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from "jwt-decode";
-
 import './index.css';
 
 const override = css`

@@ -51,7 +51,7 @@ public class SecurityFilter {
                     auth.requestMatchers("api/edit/file/{Id}").hasAuthority("ROLE_ADMIN");
                     auth.requestMatchers("api/edit/file/{Id}").permitAll();
                     auth.requestMatchers("api/search/file").hasAnyAuthority("ROLE_ADMIN","ROLE_USER");
-                    auth.anyRequest().permitAll();
+                    auth.anyRequest().authenticated();
                 });
         return httpSecurity.build();
     }

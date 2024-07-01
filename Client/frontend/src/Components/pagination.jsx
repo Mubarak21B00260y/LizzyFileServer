@@ -1,35 +1,33 @@
 import React from 'react';
 
-const Pagination = ({ currentPage, paginate, totalDocuments, itemsPerPage }) => {
-  const totalPages = Math.ceil(totalDocuments / itemsPerPage);
+const Pagination = ({ currentPage, itemsPerPage, totalItems, onPageChange }) => {
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
 
   return (
-    <div className="flex justify-center mt-8">
-      <nav className="inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+    <div className="flex justify-center mt-4">
+      <button
+        onClick={() => onPageChange(currentPage - 1)}
+        disabled={currentPage === 1}
+        className={`px-4 py-2 mx-1 rounded ${currentPage === 1 ? 'bg-gray-300 text-gray-500' : 'bg-gray-200 text-gray-700'}`}
+      >
+        Previous
+      </button>
+      {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
         <button
-          onClick={() => paginate(currentPage - 1)}
-          disabled={currentPage === 1}
-          className={`bg-white border border-gray-300 rounded-l-md px-3 py-2 text-sm font-medium ${currentPage === 1 ? 'text-gray-500' : 'text-blue-500 hover:bg-gray-50 hover:text-blue-700'}`}
+          key={page}
+          onClick={() => onPageChange(page)}
+          className={`px-4 py-2 mx-1 rounded ${page === currentPage ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}`}
         >
-          Previous
+          {page}
         </button>
-        {Array.from({ length: totalPages }, (_, i) => (
-          <button
-            key={i + 1}
-            onClick={() => paginate(i + 1)}
-            className={`bg-white border-t border-b border-gray-300 px-3 py-2 text-sm font-medium ${currentPage === i + 1 ? 'text-white bg-blue-500' : 'text-gray-500 hover:bg-gray-50 hover:text-blue-700'}`}
-          >
-            {i + 1}
-          </button>
-        ))}
-        <button
-          onClick={() => paginate(currentPage + 1)}
-          disabled={totalDocuments <= currentPage * itemsPerPage}
-          className={`bg-white border border-gray-300 rounded-r-md px-3 py-2 text-sm font-medium ${totalDocuments <= currentPage * itemsPerPage ? 'text-gray-500' : 'text-blue-500 hover:bg-gray-50 hover:text-blue-700'}`}
-        >
-          Next
-        </button>
-      </nav>
+      ))}
+      <button
+        onClick={() => onPageChange(currentPage + 1)}
+        disabled={currentPage === totalPages}
+        className={`px-4 py-2 mx-1 rounded ${currentPage === totalPages ? 'bg-gray-300 text-gray-500' : 'bg-gray-200 text-gray-700'}`}
+      >
+        Next
+      </button>
     </div>
   );
 };

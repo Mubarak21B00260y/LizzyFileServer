@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 import logo from './assets/images/logo.jpg';
 import './index.css';
 import { SyncLoader } from 'react-spinners';
@@ -9,6 +9,7 @@ import { SyncLoader } from 'react-spinners';
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState('');
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   const handleEmailChange = (e) => {
     setEmail(e.target.value);
@@ -16,12 +17,18 @@ const ForgotPasswordPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading( true)
     try {
       await axios.post('http://localhost:8080/api/account/forgotPassword', null, { params: { email } });
       toast.success('Password recovery link sent to your email.');
+      
       setTimeout(() => navigate('/accountrecovery'), 2000);
     } catch (error) {
+    
       toast.error('Failed to send recovery code. Please try again.');
+    }
+    finally{
+      setLoading(false)
     }
   };
 

@@ -31,4 +31,5 @@ public interface DocumentService {
 
     void ShareFile(String Recipient, String title) throws MessagingException;
     void EditDocument(String Id, EditDocumentRequest editDocumentRequest);
+    long getTotalDocuments();
 }

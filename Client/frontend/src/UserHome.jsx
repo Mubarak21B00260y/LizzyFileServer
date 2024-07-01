@@ -12,6 +12,7 @@ import { SyncLoader } from 'react-spinners';
 import { toast, ToastContainer } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import 'react-toastify/dist/ReactToastify.css';
+
 const UserHome = () => {
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -21,9 +22,10 @@ const UserHome = () => {
   const [email, setEmail] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedDocument, setSelectedDocument] = useState(null);
-  const itemsPerPage = 4;
+  const itemsPerPage = 5;
   const [openLogoutModal, setOpenLogoutModal] = useState(false);
   const [userFullName, setUserFullName] = useState('');
+  const [totalItems, setTotalItems] = useState(0); 
   const navigate = useNavigate();
 
   const Logout = () => {
@@ -38,14 +40,16 @@ const UserHome = () => {
 
       try {
         const response = await axios.get('http://localhost:8080/api/get/all', {
-          params: { page: 0, size: 10 },
+          params: { page: 0, size: 20 },
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
 
-        const { data } = response;
+        const { data,headers } = response;
         setDocuments(data);
+        setTotalItems(parseInt(headers['TotalDocuments'],10))
+        
       } catch (error) {
         setError('Failed to fetch documents');
       } finally {
@@ -119,7 +123,7 @@ const UserHome = () => {
       }
     } else {
       // Reset to original documents list if search term is empty
-      fetchDocuments();
+      fetchDocuments(currentPage - 1, itemsPerPage);
     }
   };
 
@@ -127,31 +131,43 @@ const UserHome = () => {
     setSearchTerm('');
     setError(null);
     // Reset to original documents list
-    fetchDocuments();
+    fetchDocuments(currentPage - 1, itemsPerPage);
+  };
+
+
+  const handlePageChange = (pageNumber) => {
+  
+    setCurrentPage(pageNumber);
   };
 
   const fetchDocuments = async () => {
+
+
     setLoading(true);
     const token = localStorage.getItem('token');
 
     try {
       const response = await axios.get('http://localhost:8080/api/get/all', {
-        params: { page: 0, size: 10 },
+        params: { page: 0, size: 20 },
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
-      const { data } = response;
+      const { data,headers } = response;
       setDocuments(data);
+      setTotalItems(parseInt(headers['TotalDocuments'],15))
+      
     } catch (error) {
       setError('Failed to fetch documents');
     } finally {
       setLoading(false);
     }
+
+    
   };
 
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+ 
 
   const handleLogout = () => setOpenLogoutModal(true);
   
@@ -176,7 +192,7 @@ const UserHome = () => {
         ) : (
           <Documents documents={documents} openModal={setOpenModal} setSelectedDocument={setSelectedDocument} />
         )}
-        <Pagination currentPage={currentPage} paginate={paginate} totalDocuments={documents.length} itemsPerPage={itemsPerPage} />
+        <Pagination currentPage={currentPage} itemsPerPage={itemsPerPage} totalItems={totalItems} onPageChange={handlePageChange} />
         <ShareModal openModal={openModal} setOpenModal={setOpenModal} email={email} handleEmailChange={handleEmailChange} handleShare={handleShare} />
         <LogoutModal openLogoutModal={openLogoutModal} confirmLogout={Logout} cancelLogout={cancelLogout} />
         <ToastContainer />

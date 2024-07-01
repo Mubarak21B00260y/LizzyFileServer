@@ -1,4 +1,4 @@
-package com.amalitechnss.Lizzy_fileServer.Authentication;
+package com.amalitechnss.Lizzy_fileServer.Requests;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;

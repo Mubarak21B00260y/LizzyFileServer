@@ -20,14 +20,16 @@ const App = () => {
   };
 
   return (
-    <BrowserRouter>
+    
+
+<BrowserRouter>
     
     <Routes>
    <Route  exact path='/' element= { < Login/>}/>
    <Route    exact path='/confirmRegistration' element= {<ConfirmRegistration />} />
    <Route    exact path='/signup'   element= {<Signup/>} /> 
 
-   <Route    exact path='/userHome'   element= {<UserHome/>} /> 
+   <Route   exact path='/userHome'   element= {<UserHome/>} /> 
    
    <Route exact path='/resetPassword' element= {<ResetPasswordPage />}/>
    < Route  exact path='/AdminHome' element={<AdminHome/>}/>
@@ -38,6 +40,12 @@ const App = () => {
     
     
     </BrowserRouter>
+
+
+
+
+    
+
   )
 }
 
