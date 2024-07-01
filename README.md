@@ -1,6 +1,6 @@
 # Overview
 
-Liizy File server  is a full-stack  documents management application that enables  educators, businesses   have a platform where their users or  audience can acess  business and academic document files from. It offers features such as user registration, secure email validation, document management (including creation, updating, sharing, and deletion).   The application ensures security using JWT tokens and adheres to best practices in REST API design. The backend is built with Spring Boot 3.2.6 and Spring Security 6.2.4 and Java 17.  with  the frontend was built  using React -Vite , Javscript , with other UI libaries for styling .
+Liizy File server  is a full-stack  documents management application that enables  educators, businesses   have a platform where their users or  audience can acess  business and academic document files from. It offers features such as user registration, secure email validation, document management (including creation, updating, sharing, and deletion).   The application ensures security using JWT tokens and adheres to best practices in REST API design. The backend is built with Spring Boot 3.2.6 and Spring Security 6.2.4 and Java 17.  and   the frontend  was  built  with React -Vite , Javscript , coupled with other UI libaries in the React ecosystem for styling .
 
 # Features
 
