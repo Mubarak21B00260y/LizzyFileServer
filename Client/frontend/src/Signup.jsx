@@ -11,6 +11,7 @@ const override = css`
   border-color: red;
 `;
 
+const BASE_URL='https://courageous-balance-production.up.railway.app'
 const Signup = () => {
   const [formData, setFormData] = useState({
     firstName: '',
@@ -50,7 +51,7 @@ const Signup = () => {
     }
 
     try {
-      const response = await axios.post('http://localhost:8080/api/auth/Register', {
+      const response = await axios.post(`${BASE_URL}/api/auth/Register`, {
         firstname: formData.firstName,
         lastname: formData.lastName,
         email: formData.email,

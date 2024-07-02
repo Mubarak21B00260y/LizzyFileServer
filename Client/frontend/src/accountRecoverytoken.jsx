@@ -10,6 +10,8 @@ const override = css`
   border-color: red;
 `;
 
+const BASE_URL='https://courageous-balance-production.up.railway.app'
+
 const AccountRecoveryToken = () => {
   const [code, setCode] = useState(Array(6).fill(''));
   const [loading, setLoading] = useState(false);
@@ -26,7 +28,7 @@ const AccountRecoveryToken = () => {
       if (value !== '' && index < 5) {
         document.getElementById(`code-input-${index + 1}`).focus();
       }
-    }
+    }                                          
   };
 
   const handleConfirm = async () => {
@@ -35,7 +37,7 @@ const AccountRecoveryToken = () => {
     setError(null);
 
     try {
-      const response = await axios.post(`http://localhost:8080/api/account/ConfirmAccountRecovery`, null, {
+      const response = await axios.post(`${BASE_URL}/api/account/ConfirmAccountRecovery`, null, {
         params: { token: codeString },
       });
 

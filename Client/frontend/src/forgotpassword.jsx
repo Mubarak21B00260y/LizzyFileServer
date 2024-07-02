@@ -5,21 +5,21 @@ import { toast, ToastContainer } from 'react-toastify';
 import logo from './assets/images/logo.jpg';
 import './index.css';
 import { SyncLoader } from 'react-spinners';
-
+const BASE_URL='https://courageous-balance-production.up.railway.app'
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState('');
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
   const handleEmailChange = (e) => {
-    setEmail(e.target.value);
+    setEmail(e.target.value);                         
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading( true)
     try {
-      await axios.post('http://localhost:8080/api/account/forgotPassword', null, { params: { email } });
+      await axios.post(  `${BASE_URL}/api/account/forgotPassword` , null, { params: { email } });
       toast.success('Password recovery link sent to your email.');
       
       setTimeout(() => navigate('/accountrecovery'), 2000);

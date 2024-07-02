@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import SyncLoader from 'react-spinners/SyncLoader';
 import { css } from '@emotion/react';
 import { toast, ToastContainer } from 'react-toastify';
-
+const BASE_URL='https://courageous-balance-production.up.railway.app'
 
 const override = css`
   display: block;
@@ -35,10 +35,10 @@ const ConfirmRegistration = () => {
   const handleConfirm = async () => {
     const codeString = code.join('');
     setLoading(true);
-    setError(null);
+    setError(null);                                           
 
     try {
-      const response = await axios.get(`http://localhost:8080/api/auth/verifyRegistration`, {
+      const response = await axios.get( `${BASE_URL}/api/auth/verifyRegistration`, {
         params: { token: codeString }
       });
 
@@ -87,6 +87,7 @@ const ConfirmRegistration = () => {
             {loading ? <SyncLoader color={'#ffffff'} loading={true} css={override} size={10} /> : 'Confirm'}
           </button>
         </div>
+        <ToastContainer/>
       </div>
     </div>
   );

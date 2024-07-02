@@ -6,6 +6,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import logo from './assets/images/logo.jpg';
 import './index.css';
 
+const BASE_URL='https://courageous-balance-production.up.railway.app'
 const ResetPasswordPage = () => {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [newPasswordVisible, setNewPasswordVisible] = useState(false);
@@ -40,7 +41,8 @@ const ResetPasswordPage = () => {
     try {
       const token = localStorage.getItem('token');
       await axios.patch(
-        'http://localhost:8080/api/account/resetPassword',
+        
+        `${BASE_URL}/api/account/resetPassword`,
         { oldPassword, newPassword },
         {
           headers: {

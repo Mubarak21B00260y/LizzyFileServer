@@ -1,5 +1,11 @@
 
 const DocumentGrid = ({ documents, onEdit, openShareModal, onDelete, onDownload, setCurrentDocument }) => {
+
+
+  if (documents.length === 0) {
+    return <p className="text-center">No documents available.</p>;
+  }
+
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
       {documents.map((document) => (

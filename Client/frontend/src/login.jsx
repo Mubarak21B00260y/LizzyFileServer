@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from "jwt-decode";
 import './index.css';
 
+const BASE_URL='https://courageous-balance-production.up.railway.app'
 const override = css`
   display: block;
   margin: 0 auto;
@@ -30,15 +31,15 @@ const Login = () => {
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  };                                                                           
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {                                      
     e.preventDefault();
     setLoading(true);
-    setError(null);
+    setError(null);                                                          
 
     try {
-      const response = await axios.post('http://localhost:8080/api/auth/login', {
+      const response = await axios.post( `${BASE_URL}/api/auth/login`, {
         email: formData.email,
         password: formData.password,
       });

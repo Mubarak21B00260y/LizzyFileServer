@@ -6,6 +6,8 @@ import logo from './assets/images/logo.jpg';
 import './index.css';
 import { SyncLoader } from 'react-spinners';
 
+const BASE_URL='https://courageous-balance-production.up.railway.app'
+
 const NewPasswordPage = () => {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -27,10 +29,10 @@ const NewPasswordPage = () => {
     if (newPassword !== confirmPassword) {
       toast.error('Passwords do not match.');
       return;
-    }
+    }                                       
        setLoading(true);
     try {
-      await axios.patch('http://localhost:8080/api/account/setPassword', {
+      await axios.patch(`${BASE_URL}/api/account/setPassword` , {
         token,
         newPassword,
       });

@@ -33,9 +33,9 @@ const AdminHome = () => {
   const [email, setEmail] = useState('');
   const [openLogoutModal, setOpenLogoutModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 30
+  const itemsPerPage = 30;
 
-
+  const BASE_URL = 'https://courageous-balance-production.up.railway.app';
 
   const navigate = useNavigate();
 
@@ -50,7 +50,7 @@ const AdminHome = () => {
   const fetchDocuments = async () => {
     try {
       const token = localStorage.getItem('token'); // Assuming token is stored in localStorage
-      const response = await axios.get('http://localhost:8080/api/get/all', {
+      const response = await axios.get(`${BASE_URL}/api/get/all`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -76,7 +76,7 @@ const AdminHome = () => {
       const token = localStorage.getItem('token');
 
       try {
-        const response = await axios.get('http://localhost:8080/api/search/file', {
+        const response = await axios.get(`${BASE_URL}/api/search/file`, {
           params: { title: searchTerm },
           headers: {
             Authorization: `Bearer ${token}`,
@@ -112,7 +112,7 @@ const AdminHome = () => {
     const token = localStorage.getItem('token');
     setLoading(true);
     try {
-      await axios.post('http://localhost:8080/api/share/file', null, {
+      await axios.post(`${BASE_URL}/api/share/file`, null, {
         params: {
           Recipient: email,
           title: currentDocument.title,
@@ -121,10 +121,10 @@ const AdminHome = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-      setOpenShareModal(false)
-      toast.success("Document shared successfully");
+      setOpenShareModal(false);
+      toast.success('Document shared successfully');
     } catch (error) {
-      toast.error("Failed to share file, try again");
+      toast.error('Failed to share file, try again');
     } finally {
       setOpenShareModal(false);
       setLoading(false);
@@ -135,7 +135,7 @@ const AdminHome = () => {
     const token = localStorage.getItem('token');
 
     try {
-      const response = await axios.get('http://localhost:8080/api/download/file', {
+      const response = await axios.get(`${BASE_URL}/api/download/file`, {
         params: { title: document.title },
         headers: {
           Authorization: `Bearer ${token}`,
@@ -169,7 +169,7 @@ const AdminHome = () => {
 
     try {
       const token = localStorage.getItem('token');
-      await axios.post('http://localhost:8080/api/upload/single', formData, {
+      await axios.post(`${BASE_URL}/api/upload/single`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data',
@@ -199,7 +199,7 @@ const AdminHome = () => {
 
     try {
       const token = localStorage.getItem('token');
-      await axios.patch(`http://localhost:8080/api/edit/file/${currentDocument.id}`, updatedDocument, {
+      await axios.patch(`${BASE_URL}/api/edit/file/${currentDocument.id}`, updatedDocument, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -208,7 +208,6 @@ const AdminHome = () => {
       fetchDocuments();
       toast.success('Document updated successfully');
     } catch (error) {
-    
       toast.error('Error editing document');
     }
   };
@@ -221,7 +220,7 @@ const AdminHome = () => {
   const confirmDelete = async () => {
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`http://localhost:8080/api/delete/file/${currentDocument.id}`, {
+      await axios.delete(`${BASE_URL}/api/delete/file/${currentDocument.id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -238,7 +237,7 @@ const AdminHome = () => {
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   const user = {
-    name: 'Admmin',
+    name: 'Admin',
     avatarUrl: avatar,
   };
 
@@ -254,14 +253,20 @@ const AdminHome = () => {
         ) : error ? (
           <p className="text-red-500">{error}</p>
         ) : (
-          <DocumentGrid
-            documents={documents.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-            onDownload={handleDownload}
-            setCurrentDocument={setCurrentDocument}
-            openShareModal={setOpenShareModal}
-          />
+          <>
+            {documents.length > 0 ? (
+              <DocumentGrid
+                documents={documents.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                onDownload={handleDownload}
+                setCurrentDocument={setCurrentDocument}
+                openShareModal={setOpenShareModal}
+              />
+            ) : (
+              <p className="text-center">No documents found.</p>
+            )}
+          </>
         )}
         <Pagination
           currentPage={currentPage}

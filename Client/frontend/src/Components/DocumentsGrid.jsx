@@ -1,13 +1,13 @@
 import React from 'react';
 import axios from 'axios';
 import { TbMailShare } from "react-icons/tb";
-
+const BASE_URL='https://courageous-balance-production.up.railway.app'
 const Documents = ({ documents, openModal, setSelectedDocument }) => {
   const handleDownload = async (document) => {
     const token = localStorage.getItem('token');
 
     try {
-      const response = await axios.get('http://localhost:8080/api/download/file', {
+      const response = await axios.get(`${BASE_URL}/api/download/file`, {                  
         params: { title: document.title },
         headers: {
           Authorization: `Bearer ${token}`,

@@ -27,19 +27,19 @@ const UserHome = () => {
   const [userFullName, setUserFullName] = useState('');
   const [totalItems, setTotalItems] = useState(0); 
   const navigate = useNavigate();
-
+const BASE_URL='https://courageous-balance-production.up.railway.app'
   const Logout = () => {
     navigate('/');
   };
 
 
-  useEffect(() => {
+  useEffect(() => {                                                        
     const fetchDocuments = async () => {
       setLoading(true);
       const token = localStorage.getItem('token');
 
       try {
-        const response = await axios.get('http://localhost:8080/api/get/all', {
+        const response = await axios.get(`${BASE_URL}/api/get/all`, {
           params: { page: 0, size: 20 },
           headers: {
             Authorization: `Bearer ${token}`,
@@ -68,10 +68,10 @@ const UserHome = () => {
 
   const handleEmailChange = (e) => setEmail(e.target.value);
   const handleShare = async () => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('token');         
     setLoading(true);
     try {
-      await axios.post('http://localhost:8080/api/share/file', null, {
+      await axios.post(`${BASE_URL}/api/share/file`, null, {
         params: {
           Recipient: email,
           title: selectedDocument.title,
@@ -100,15 +100,14 @@ const UserHome = () => {
       setLoading(true);
       setError(null);
       const token = localStorage.getItem('token');
-
+                                                                 
       try {
-        const response = await axios.get('http://localhost:8080/api/search/file', {
+        const response = await axios.get(`${BASE_URL}/api/search/file`, {
           params: { title: searchTerm },
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-
         const { data } = response;
         if (data.length) {
           setDocuments(data);
@@ -145,9 +144,9 @@ const UserHome = () => {
 
     setLoading(true);
     const token = localStorage.getItem('token');
-
+                                                                   
     try {
-      const response = await axios.get('http://localhost:8080/api/get/all', {
+      const response = await axios.get(`${BASE_URL}/api/get/all`, {       
         params: { page: 0, size: 20 },
         headers: {
           Authorization: `Bearer ${token}`,

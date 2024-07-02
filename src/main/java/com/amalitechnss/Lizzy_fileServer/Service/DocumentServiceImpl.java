@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
@@ -41,14 +42,20 @@ public class DocumentServiceImpl implements DocumentService {
         String Filename = file.getOriginalFilename();
         if (Filename != null) {
             String dir = System.getProperty("user.dir") + File.separator + storageLocation;
-            Path Target = Paths.get(dir).resolve(Filename);
-            file.transferTo(Target.toFile());
+            Path targetDirectory= Paths.get(dir);
+            if (!Files.exists(targetDirectory)){
+
+                Files.createDirectories(targetDirectory);
+            }
+
+
+            Path TargetFile = targetDirectory.resolve(Filename);
+            file.transferTo(TargetFile.toFile());
             Document document = new Document();
             document.setTitle(documentUploadRequest.getTitle());
-
             document.setDescription(documentUploadRequest.getDescription());
             document.setUploadedAt(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()));
-            document.setFilePath(Target.toString());
+            document.setFilePath(TargetFile.toString());
             document.setFilename(Filename);
 
             if (documentRepository.existsByTitle(documentUploadRequest.getTitle())) {
