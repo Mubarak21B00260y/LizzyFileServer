@@ -53,7 +53,7 @@ public AuthenticationProvider authenticationProvider (){
     final UrlBasedCorsConfigurationSource urlBasedCorsConfigurationSource= new UrlBasedCorsConfigurationSource();
     final CorsConfiguration configuration= new CorsConfiguration();
      configuration.setAllowCredentials(true);
-     configuration.setAllowedOrigins(Collections.singletonList("https://lizzy-file-server-celbp1w3v-mubarak21b00260ys-projects.vercel.app"));
+     configuration.setAllowedOrigins(Collections.singletonList("https://lizzy-file-server-2ki1.vercel.app"));
      configuration.setAllowedHeaders(Arrays.asList(HttpHeaders.ORIGIN, HttpHeaders.AUTHORIZATION,HttpHeaders.ACCEPT, HttpHeaders.CONTENT_TYPE));
      configuration.setAllowedMethods(Arrays.asList("POST", "GET", "PUT", "DELETE", "PATCH"));
 
