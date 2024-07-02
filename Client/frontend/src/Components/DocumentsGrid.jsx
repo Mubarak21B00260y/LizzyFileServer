@@ -16,8 +16,11 @@ const Documents = ({ documents, openModal, setSelectedDocument }) => {
       });
 
       if (response.status === 200) {
+
+        const contentType = response.headers['content-type'];
+
         // Create a new Blob object using the response data of the onload object
-        const blob = new Blob([response.data], { type: 'application/pdf' });
+        const blob = new Blob([response.data], { type: contentType  });
 
         // Create a link element, hide it, direct it towards the blob, and then 'click' it programmatically
         const url = window.URL.createObjectURL(blob);
